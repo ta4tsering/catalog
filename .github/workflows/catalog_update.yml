@@ -97,13 +97,13 @@ jobs:
                 else:
                     row_string = f"[{pecha_id}](https://github.com/OpenPecha/{pecha_id}),{title},,,bdr:{work_id}\n"
                 print(row_string)
-                with open(f"{repo_path}/catalog.csv", "a", encoding='utf-8') as csvfile:
+                with open(f"{repo_path}/data/catalog.csv", "a", encoding='utf-8') as csvfile:
                     csvfile.write(row_string)
                 
 
-        def check_catalog_for_repo(catalog_path, pecha_id):
+        def check_catalog_for_repo(repo_path, pecha_id):
             num = 0
-            with open(f"{catalog_path}/{catalog.csv}", newline="") as file:
+            with open(f"{repo_path}/data/catalog.csv", newline="") as file:
                 pechas = list(csv.reader(file, delimiter=","))
                 for pecha in pechas[3:]:
                     res = not bool(pecha)
@@ -123,7 +123,7 @@ jobs:
             add_to_catalog = []
             for num in sorted(repo_names):
                 pecha_id = repo_names[num]['repo']
-                pecha_ids = check_catalog_for_repo(catalog_path, pecha_id)
+                pecha_ids = check_catalog_for_repo(repo_path, pecha_id)
                 if pecha_ids != None:
                     add_to_catalog.append(pecha_ids)
             return add_to_catalog
@@ -140,7 +140,7 @@ jobs:
                 notifier(f"this pecha {pecha_id} has no repository")
                 return pecha_id
                 
-        def get_rows(g,catalog):
+        def get_rows(g, catalog):
             rows = []
             strings = re.split(r"[\r\n]",catalog)
             for num, string in enumerate(strings, 0):
@@ -153,14 +153,14 @@ jobs:
                             rows.append(string)
             return rows
 
-        def get_catalog_from_github(g, cataglog_path):
+        def get_catalog_from_github(g,repo_path):
             repo = g.get_repo(f"ta4tsering/catalog")
             content = repo.get_contents(f"data/catalog.csv")
             catalog = content.decoded_content.decode()
-            rows = get_rows(g,catalog)
-            with open(f"{catalog_path}/catalog.csv", "w", encoding='utf-8') as f:
-                for row in rows:
-                    f.write(row)
+            lines = get_rows(g, catalog)
+            with open(f"{repo_path}/data/catalog.csv", "w", encoding='utf-8') as f:
+                for line in lines:
+                    f.write(line)
                     f.write(f"\n")
 
         def get_repo_names(headers):
@@ -210,7 +210,6 @@ jobs:
             file_path = './'
             repo_path = download_repo("catalog", file_path)
             repo_names = get_repo_names(headers)
-            get_catalog_from_github(g, catalog_path)
             pecha_ids = check_repo_names_in_catalog(g, repo_names)
             remove_nonexisted_repos_from_catalog(pecha_ids)
             repo = Repo(pecha_path)
