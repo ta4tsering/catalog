@@ -14,7 +14,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: 'python -m pip install --upgrade pip
-        pip install regex PyYAML python-csv requests 
+        pip install regex PyYAML python-csv requests PyGithub 
         '
     - name: Create zip file for plain and pages
       run: |
@@ -157,10 +157,9 @@ jobs:
               return json_object
 
           if __name__ == '__main__':
-              token = "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"
+              token = ${{ secrets.SECRET_KEY }}
+              print(token)
               g = Github(token)
-              pecha_id = Path.cwd().name
-              opf_path = Path.cwd().resolve() / f"{pecha_id}"
               headers = {"Authorization": f"bearer {token}"}
               filename = "repo_name.json"
               repo_info = get_repo_names(headers)
