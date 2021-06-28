@@ -167,10 +167,7 @@ jobs:
             filename = "repo_name.json"
             repo_info = get_repo_names(headers)
             write_repo_info(repo_info, filename)
-            repo_name = Path.cwd().name
-            catalog_path = Path.cwd().resolve() / data
-            print(catalog_path)
-            get_catalog(catalog_path)
+            get_catalog(g)
             pecha_ids = check_repo(g, filename)
             update_catalog(pecha_ids)
       shell: python
