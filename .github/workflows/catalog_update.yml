@@ -4,7 +4,7 @@ name: create release
     paths-ignore: '**/README.md'
 jobs:
   release-project:
-    name: Release different versions of Text file
+    name: Update the catalog
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -16,7 +16,7 @@ jobs:
       run: 'python -m pip install --upgrade pip
         pip install regex PyYAML python-csv requests PyGithub 
         '
-    - name: Create zip file for plain and pages
+    - name: Update catalog
       run: |
           import re
           import requests
