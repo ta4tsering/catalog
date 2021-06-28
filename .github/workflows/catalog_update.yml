@@ -207,7 +207,7 @@ jobs:
             commit_msg = "updated catalog"
             headers = {"Authorization": f"bearer {token}"}
             file_path = './'
-            repo_path = download_repo(catalog_repo, file_path)
+            repo_path = download_repo("catalog", file_path)
             repo_names = get_repo_names(headers)
             get_catalog_from_github(g, catalog_path)
             pecha_ids = check_repo_names_in_catalog(g, repo_names)
