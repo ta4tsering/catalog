@@ -157,8 +157,7 @@ jobs:
               return json_object
 
           if __name__ == '__main__':
-              token = ${{ secrets.SECRET_TOKEN }}
-              g = Github(token)
+              g = Github(${{ secrets.SECRET_TOKEN }})
               headers = {"Authorization": f"bearer {token}"}
               filename = "repo_name.json"
               repo_info = get_repo_names(headers)
