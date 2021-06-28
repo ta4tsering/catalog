@@ -30,14 +30,9 @@ jobs:
         from github import Github
         from pathlib import Path
 
-        logging.basicConfig(
-            filename="catalog_info.log",
-            format="%(levelname)s: %(message)s",
-            level=logging.INFO
-        )
-
-        def notifier(msg):
-            logging.info(msg)
+        config = {
+            "OP_ORG": "https://github.com/Openpecha"
+            }
 
         def commit(repo, message, not_includes=[], branch="main"):
             has_changed = False
