@@ -61,7 +61,7 @@ jobs:
                         message = "Initial commit"
                     repo.git.commit("-m", message)
                     repo.git.push("origin", branch)
-                    print(f"{pecha_id} pagination updated")
+                    print(f"{pecha_id} catalog updated")
 
         def setup_auth(repo, org, token):
             remote_url = repo.remote().url
