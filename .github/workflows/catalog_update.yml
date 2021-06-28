@@ -161,7 +161,7 @@ jobs:
             return json_object
 
         if __name__ == '__main__':
-            token = os.environ.get(SECRET)
+            token = os.environ('SECRET')
             g = Github(token)
             headers = {"Authorization": f"bearer {token}"}
             filename = "repo_name.json"
