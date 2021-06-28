@@ -114,7 +114,6 @@ jobs:
                             print(f"{pecha_id} is available")
                             break
                 if num == 0:
-                    notifier(f"{pecha_id} is not in catalog")
                     print(f"{pecha_id} is not in catalog")
                     return pecha_id
             return None
