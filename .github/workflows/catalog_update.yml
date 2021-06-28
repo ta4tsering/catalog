@@ -189,7 +189,7 @@ jobs:
                 curr_name = {}
             return repo_names
 
-        def download_pecha(pecha_id, out_path=None, branch="master"):
+        def download_repo(pecha_id, out_path=None, branch="master"):
             pecha_url = f"{config['OP_ORG']}/{pecha_id}.git"
             out_path = Path(out_path)
             out_path.mkdir(exist_ok=True, parents=True)
