@@ -24,6 +24,7 @@ jobs:
           import yaml
           import logging
           import csv
+          from github import Github
 
           logging.basicConfig(
               filename="catalog_info.log",
@@ -158,7 +159,7 @@ jobs:
 
           if __name__ == '__main__':
               g = Github(${{ secrets.SECRET_TOKEN }})
-              headers = {"Authorization": f"bearer {token}"}
+              headers = {"Authorization": f"bearer {${{ secrets.SECRET_TOKEN }}}"}
               filename = "repo_name.json"
               repo_info = get_repo_names(headers)
               write_repo_info(repo_info, filename)
