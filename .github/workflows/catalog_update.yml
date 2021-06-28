@@ -123,12 +123,10 @@ jobs:
                     return pecha_id
             return None
 
-        def check_repo_names_in_catalog(g, temp_catlog_path, filename):
+        def check_repo_names_in_catalog(g, repo_names):
             add_to_catalog = []
-            with open(f"{catalog_path}/{filename}", "r") as openfile:
-                repo_object = json.load(openfile)
-            for num in repo_object:
-                pecha_id = repo_object[num]['repo']
+            for num in sorted(repo_names):
+                pecha_id = repo_names[num]['repo']
                 pecha_ids = check_catalog_for_repo(catalog_path, pecha_id)
                 if pecha_ids != None:
                     add_to_catalog.append(pecha_ids)
@@ -169,12 +167,8 @@ jobs:
                     f.write(row)
                     f.write(f"\n")
 
-        def write_repo_names(repo_names, repo_path, filename):
-            with open(f"{catalog_path}/data/{filename}", "w") as outfile:
-                outfile.write(repo_names)
-
         def get_repo_names(headers):
-            repo_info = {}
+            repo_names = {}
             curr_name = {}
             new_name = 30000
             nums = 1
@@ -191,10 +185,9 @@ jobs:
                     name = repo_name[1:]
                     name = int(name)
                 curr_name[name]={'repo':repo_name}
-                repo_info.update(curr_name)
+                repo_names.update(curr_name)
                 curr_name = {}
-            json_object = json.dumps(repo_info, sort_keys=True, indent=4)
-            return json_object
+            return repo_names
 
         def download_pecha(pecha_id, out_path=None, branch="master"):
             pecha_url = f"{config['OP_ORG']}/{pecha_id}.git"
@@ -213,14 +206,11 @@ jobs:
             g = Github(token)
             commit_msg = "updated catalog"
             headers = {"Authorization": f"bearer {token}"}
-            catalog_repos = Path.cwd().name
-            catalog_path = Path.cwd().resolve() / data
             file_path = './'
             repo_path = download_repo(catalog_repo, file_path)
             repo_names = get_repo_names(headers)
-            write_repo_names(repo_names, repo_path,"repo_name.json")
             get_catalog_from_github(g, catalog_path)
-            pecha_ids = check_repo_names_in_catalog(g, repo_path,"repo_name.json")
+            pecha_ids = check_repo_names_in_catalog(g, repo_names)
             remove_nonexisted_repos_from_catalog(pecha_ids)
             repo = Repo(pecha_path)
             setup_auth(repo, "ta4tsering", token)
