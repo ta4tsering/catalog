@@ -18,7 +18,7 @@ jobs:
         '
     - name: Update catalog
       env:
-        SECRET: ${{ secrets.SECRET_TOKEN }}
+        SECRET: ${{ secrets.GITHUB_TOKEN }}
       run: |
         import re
         import os
