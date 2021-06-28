@@ -28,6 +28,7 @@ jobs:
         import logging
         import csv
         from github import Github
+        from pathlib import Path
 
         logging.basicConfig(
             filename="catalog_info.log",
