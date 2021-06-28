@@ -82,7 +82,7 @@ jobs:
                 title = None
             return title, work_id
 
-        def remove_nonexisted_repos_from_catalog(temp_catlog_path, pecha_ids):
+        def remove_nonexisted_repos_from_catalog(pecha_ids, repo_path):
             for pecha_id in pecha_ids:
                 if pecha_id == "P000001":
                     continue
@@ -136,7 +136,6 @@ jobs:
                 return None
             except:
                 print(f"this pecha {pecha_id} has no repository")
-                notifier(f"this pecha {pecha_id} has no repository")
                 return pecha_id
                 
         def get_rows(g, catalog):
@@ -210,8 +209,8 @@ jobs:
             repo_path = download_repo("catalog", file_path)
             repo_names = get_repo_names(headers)
             pecha_ids = check_repo_names_in_catalog(g, repo_names)
-            remove_nonexisted_repos_from_catalog(pecha_ids)
-            repo = Repo(pecha_path)
+            remove_nonexisted_repos_from_catalog(pecha_ids, repo_path)
+            repo = Repo(repo_path)
             setup_auth(repo, "ta4tsering", token)
             commit(repo, commit_msg, branch="main")
       shell: python
