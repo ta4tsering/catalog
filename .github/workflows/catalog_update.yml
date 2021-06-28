@@ -17,6 +17,8 @@ jobs:
         pip install regex PyYAML python-csv requests PyGithub 
         '
     - name: Update catalog
+      env:
+        SECRET: ${{ secrets.SECRET_TOKEN }}
       run: |
           import re
           import requests
@@ -157,7 +159,7 @@ jobs:
               return json_object
 
           if __name__ == '__main__':
-              token = ${{ secrets.SECRET_KEY }}
+              token = env.SECRET
               print(token)
               g = Github(token)
               headers = {"Authorization": f"bearer {token}"}
