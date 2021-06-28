@@ -53,6 +53,8 @@ jobs:
             if repo.is_dirty() is True:
                 for fn in repo.git.diff(None, name_only=True).split("\n"):
                     if fn:
+                        git config user.name "tashi"
+                        git config user.email "ta3tsering@gmail.com"
                         repo.git.add(fn)
                     if has_changed is False:
                         has_changed = True
