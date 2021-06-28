@@ -38,6 +38,40 @@ jobs:
         def notifier(msg):
             logging.info(msg)
 
+        def commit(repo, message, not_includes=[], branch="main"):
+            has_changed = False
+
+            for fn in repo.untracked_files:
+                ignored = False
+                for not_include_fn in not_includes:
+                    if not_include_fn in fn:
+                        ignored = True
+                if ignored:
+                    continue
+                if fn:
+                    repo.git.add(fn)
+                if has_changed is False:
+                    has_changed = True
+
+            if repo.is_dirty() is True:
+                for fn in repo.git.diff(None, name_only=True).split("\n"):
+                    if fn:
+                        repo.git.add(fn)
+                    if has_changed is False:
+                        has_changed = True
+                if has_changed is True:
+                    if not message:
+                        message = "Initial commit"
+                    repo.git.commit("-m", message)
+                    repo.git.push("origin", branch)
+                    print(f"{pecha_id} pagination updated")
+
+        def setup_auth(repo, org, token):
+            remote_url = repo.remote().url
+            old_url = remote_url.split("//")
+            authed_remote_url = f"{old_url[0]}//{org}:{token}@{old_url[1]}"
+            repo.remote().set_url(authed_remote_url)
+
         def get_title_and_work_id(g, pecha_id):
             try:
                 repo = g.get_repo(f"Openpecha/{pecha_id}")
@@ -51,7 +85,7 @@ jobs:
                 title = None
             return title, work_id
 
-        def update_catalog(pecha_ids):
+        def remove_nonexisted_repos_from_catalog(temp_catlog_path, pecha_ids):
             for pecha_id in pecha_ids:
                 if pecha_id == "P000001":
                     continue
@@ -66,12 +100,13 @@ jobs:
                 else:
                     row_string = f"[{pecha_id}](https://github.com/OpenPecha/{pecha_id}),{title},,,bdr:{work_id}\n"
                 print(row_string)
-                with open("catalog.csv", "a", encoding='utf-8') as csvfile:
+                with open(f"{repo_path}/catalog.csv", "a", encoding='utf-8') as csvfile:
                     csvfile.write(row_string)
+                
 
-        def check_catalog_for_pecha(pecha_id):
+        def check_catalog_for_repo(catalog_path, pecha_id):
             num = 0
-            with open("catalog.csv", newline="") as file:
+            with open(f"{catalog_path}/{catalog.csv}", newline="") as file:
                 pechas = list(csv.reader(file, delimiter=","))
                 for pecha in pechas[3:]:
                     res = not bool(pecha)
@@ -87,18 +122,18 @@ jobs:
                     return pecha_id
             return None
 
-        def check_repo(g, filename):
+        def check_repo_names_in_catalog(g, temp_catlog_path, filename):
             add_to_catalog = []
-            with open(filename, "r") as openfile:
+            with open(f"{catalog_path}/{filename}", "r") as openfile:
                 repo_object = json.load(openfile)
             for num in repo_object:
                 pecha_id = repo_object[num]['repo']
-                pecha_ids = check_catalog_for_pecha(pecha_id)
+                pecha_ids = check_catalog_for_repo(catalog_path, pecha_id)
                 if pecha_ids != None:
                     add_to_catalog.append(pecha_ids)
             return add_to_catalog
 
-        def clean_catalog(g, string):
+        def check_repo_in_github(g, string):
             pecha = re.search(r"\((.*?)\)", string)
             pechaurl = pecha.group(1)
             pecha_id = pechaurl[29:]
@@ -110,32 +145,32 @@ jobs:
                 notifier(f"this pecha {pecha_id} has no repository")
                 return pecha_id
                 
-        def get_lines(g,catalog):
-            lines = []
+        def get_rows(g,catalog):
+            rows = []
             strings = re.split(r"[\r\n]",catalog)
             for num, string in enumerate(strings, 0):
                 if num == 0:
-                    lines.append(string)
+                    rows.append(string)
                 elif num%2 == 0:
                     if len(string) != 0:
-                        change = clean_catalog(g, string)
+                        change = check_repo_in_github(g, string)
                         if change == None:
-                            lines.append(string)
-            return lines
+                            rows.append(string)
+            return rows
 
-        def get_catalog(cataglog_path):
+        def get_catalog_from_github(g, cataglog_path):
             repo = g.get_repo(f"ta4tsering/catalog")
             content = repo.get_contents(f"data/catalog.csv")
             catalog = content.decoded_content.decode()
-            lines = get_lines(g,catalog)
-            with open("catalog.csv", "w", encoding='utf-8') as f:
-                for line in lines:
-                    f.write(line)
+            rows = get_rows(g,catalog)
+            with open(f"{catalog_path}/catalog.csv", "w", encoding='utf-8') as f:
+                for row in rows:
+                    f.write(row)
                     f.write(f"\n")
 
-        def write_repo_info(repo_info, filename):
-            with open(filename, "w") as outfile:
-                outfile.write(repo_info)
+        def write_repo_names(repo_names, repo_path, filename):
+            with open(f"{catalog_path}/data/{filename}", "w") as outfile:
+                outfile.write(repo_names)
 
         def get_repo_names(headers):
             repo_info = {}
@@ -160,14 +195,33 @@ jobs:
             json_object = json.dumps(repo_info, sort_keys=True, indent=4)
             return json_object
 
+        def download_pecha(pecha_id, out_path=None, branch="master"):
+            pecha_url = f"{config['OP_ORG']}/{pecha_id}.git"
+            out_path = Path(out_path)
+            out_path.mkdir(exist_ok=True, parents=True)
+            pecha_path = out_path / pecha_id
+            Repo.clone_from(pecha_url, str(pecha_path))
+            repo = Repo(str(pecha_path))
+            branch_to_pull = get_branch(repo, branch)
+            repo.git.checkout(branch_to_pull)
+            print(f"{pecha_id} Downloaded ")
+            return pecha_path        
+
         if __name__ == '__main__':
             token = os.environ.get('SECRET')
             g = Github(token)
+            commit_msg = "updated catalog"
             headers = {"Authorization": f"bearer {token}"}
-            filename = "repo_name.json"
-            repo_info = get_repo_names(headers)
-            write_repo_info(repo_info, filename)
-            get_catalog(g)
-            pecha_ids = check_repo(g, filename)
-            update_catalog(pecha_ids)
+            catalog_repos = Path.cwd().name
+            catalog_path = Path.cwd().resolve() / data
+            file_path = './'
+            repo_path = download_repo(catalog_repo, file_path)
+            repo_names = get_repo_names(headers)
+            write_repo_names(repo_names, repo_path,"repo_name.json")
+            get_catalog_from_github(g, catalog_path)
+            pecha_ids = check_repo_names_in_catalog(g, repo_path,"repo_name.json")
+            remove_nonexisted_repos_from_catalog(pecha_ids)
+            repo = Repo(pecha_path)
+            setup_auth(repo, "ta4tsering", token)
+            commit(repo, commit_msg, branch="main")
       shell: python
