@@ -1,7 +1,7 @@
 name: create release
-'on':
-  push:
-    paths-ignore: '**/README.md'
+on:
+  schedule:
+    - corn: '1 * * * *'
 jobs:
   release-project:
     name: Update the catalog
@@ -179,7 +179,7 @@ jobs:
         if __name__ == '__main__':
             token = os.environ.get('SECRET')
             g = Github(token)
-            commit_msg = "updated catalog"
+            commit_msg = "updated catalog with schedule"
             headers = {"Authorization": f"bearer {token}"}
             file_path = './'
             repo_path = download_repo("catalog", file_path)
