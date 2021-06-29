@@ -107,11 +107,12 @@ jobs:
             pecha = re.search(r"\((.*?)\)", string)
             pechaurl = pecha.group(1)
             pecha_id = pechaurl[29:]
-            try:
-                repo = g.get_repo(f"ta4tsering/{pecha_id}")
+            response = requests.get(f"https://api.github.com/repos/Openpecha/{pecha_id}", headers=headers)
+            if response.status_code == 200:
+                print(f"{pecha
                 return None
-            except:
-                print(f"this pecha {pecha_id} has no repository")
+            else:
+                print(f"{pecha_id} has no repository")
                 return pecha_id
                 
         def get_rows(g, catalog):
