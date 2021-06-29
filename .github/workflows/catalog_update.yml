@@ -158,6 +158,7 @@ jobs:
                   curr_name[name]={'repo':repo_name}
                   repo_names.update(curr_name)
                   curr_name = {}
+              print(repo_names)
               return repo_names
 
         def get_branch(repo, branch):
