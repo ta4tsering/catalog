@@ -1,7 +1,7 @@
 name: create release
 on:
   schedule:
-    - corn: '1 * * * *'
+    - cron: '1 * * * *'
 jobs:
   release-project:
     name: Update the catalog
