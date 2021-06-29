@@ -65,16 +65,21 @@ jobs:
                 elif pecha_id == "P000002":
                     continue
                 title, work_id = get_title_and_work_id(g, pecha_id)
+                row_string = None
                 if title == None:
                     if work_id == None:
                         row_string = f"[{pecha_id}](https://github.com/OpenPecha/{pecha_id}),,,,\n"
                     else:
                         row_string = f"[{pecha_id}](https://github.com/OpenPecha/{pecha_id}),,,,bdr:{work_id}\n"
                 else:
-                    row_string = f"[{pecha_id}](https://github.com/OpenPecha/{pecha_id}),{title},,,bdr:{work_id}\n"
-                print(row_string)
-                with open(f"{repo_path}/data/catalog.csv", "a", encoding='utf-8') as csvfile:
-                    csvfile.write(row_string)
+                    if work_id != None:
+                        row_string = f"[{pecha_id}](https://github.com/OpenPecha/{pecha_id}),{title},,,bdr:{work_id}\n"
+                    else: 
+                        row_string = f"[{pecha_id}](https://github.com/OpenPecha/{pecha_id}),{title},,,\n"
+                if row_string != None:
+                    print(row_string)
+                    with open(f"{repo_path}/data/catalog.csv", "a", encoding='utf-8') as csvfile:
+                        csvfile.write(row_string)
                 
 
         def check_catalog_for_repo(repo_path, pecha_id):
