@@ -1,7 +1,9 @@
-name: create release
+name: CI
+
 on:
   schedule:
     - cron: '*/5 * * * *'
+    
 jobs:
   release-project:
     name: Update the catalog
