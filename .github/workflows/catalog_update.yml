@@ -109,7 +109,7 @@ jobs:
             pecha_id = pechaurl[29:]
             response = requests.get(f"https://api.github.com/repos/Openpecha/{pecha_id}")
             if response.status_code == 200:
-                print(f"{pecha}")
+                print(f"{pecha_id} good")
                 return None
             else:
                 print(f"{pecha_id} has no repository")
