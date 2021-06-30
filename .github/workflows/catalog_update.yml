@@ -193,7 +193,7 @@ jobs:
             repo_path = download_repo("catalog", file_path)
             repo_names = get_repo_names(headers)
             print(repo_names)
-            get_catalog_from_github(g,repo_path, headers)
+            get_catalog_from_github(g,repo_path)
             pecha_ids = check_repo_names_in_catalog(g, repo_names)
             remove_nonexisted_repos_from_catalog(pecha_ids, repo_path)
             new_catalog = Path(f"{repo_path}/data/catalog.csv").read_text(encoding='utf-8')
