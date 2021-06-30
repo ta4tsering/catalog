@@ -108,11 +108,11 @@ jobs:
                     add_to_catalog.append(pecha_ids)
             return add_to_catalog
 
-        def check_repo_in_github(headers, string):
+        def check_repo_in_github(string):
             pecha = re.search(r"\((.*?)\)", string)
             pechaurl = pecha.group(1)
             pecha_id = pechaurl[29:]
-            response = requests.get(f"https://api.github.com/repos/Openpecha/{pecha_id}", headers=headers)
+            response = requests.get(f"https://api.github.com/repos/Openpecha/{pecha_id}")
             if response.status_code == 200:
                 print(f"{pecha_id} good")
                 return None
@@ -120,7 +120,7 @@ jobs:
                 print(f"{pecha_id} has no repository")
                 return pecha_id
                 
-        def get_rows(headers, catalog):
+        def get_rows(catalog):
             rows = []
             strings = re.split(r"[\r\n]",catalog)
             for num, string in enumerate(strings, 0):
@@ -128,16 +128,16 @@ jobs:
                     rows.append(string)
                 elif num%2 == 0:
                     if len(string) != 0:
-                        change = check_repo_in_github(headers, string)
+                        change = check_repo_in_github(string)
                         if change == None:
                             rows.append(string)
             return rows
 
-        def get_catalog_from_github(g,repo_path, headers):
+        def get_catalog_from_github(g,repo_path):
             repo = g.get_repo(f"ta4tsering/catalog")
             content = repo.get_contents(f"data/catalog.csv")
             catalog = content.decoded_content.decode()
-            lines = get_rows(headers, catalog)
+            lines = get_rows(catalog)
             with open(f"{repo_path}/data/catalog.csv", "w", encoding='utf-8') as f:
                 for line in lines:
                     f.write(line)
