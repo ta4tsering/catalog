@@ -140,7 +140,7 @@ jobs:
             return repo_path                
 
         if __name__ == '__main__':
-            token = os.environ.get('SECRET')
+            token = os.environ.get('SECRET_TOKEN')
             g = Github(token)
             commit_msg = "updated catalog with schedule"
             headers = {"Authorization": f"bearer {token}"}
